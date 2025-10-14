@@ -393,6 +393,14 @@ variable "enable-cinder-volume" {
   default     = false
 }
 
+variable "is-region-controller" {
+  # Only a small subset of API services will be deployed on region
+  # controllers (e.g. Keystone, Horizon).
+  description = "Specify if this is a region controller."
+  type        = bool
+  default     = false
+}
+
 variable "cinder-volume-offer-url" {
   description = "Offer URL from cinder-volume app"
   type        = string

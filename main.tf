@@ -124,6 +124,7 @@ module "rabbitmq" {
 
 module "glance" {
   depends_on           = [module.single-mysql, module.many-mysql]
+  count                = var.is-region-controller ? 0 : 1
   source               = "./modules/openstack-api"
   charm                = "glance-k8s"
   name                 = "glance"
@@ -173,6 +174,7 @@ module "keystone" {
 
 module "nova" {
   depends_on           = [module.single-mysql, module.many-mysql]
+  count                = var.is-region-controller ? 0 : 1
   source               = "./modules/openstack-api"
   charm                = "nova-k8s"
   name                 = "nova"
@@ -194,6 +196,7 @@ module "nova" {
 }
 
 resource "juju_integration" "nova-to-ingress-public" {
+  count = var.is-region-controller ? 0 : 1
   model = juju_model.sunbeam.name
 
   application {
@@ -208,6 +211,7 @@ resource "juju_integration" "nova-to-ingress-public" {
 }
 
 resource "juju_integration" "nova-to-ingress-internal" {
+  count = var.is-region-controller ? 0 : 1
   model = juju_model.sunbeam.name
 
   application {
@@ -243,6 +247,7 @@ module "horizon" {
 }
 
 module "neutron" {
+  count                = var.is-region-controller ? 0 : 1
   depends_on           = [module.single-mysql, module.many-mysql]
   source               = "./modules/openstack-api"
   charm                = "neutron-k8s"
@@ -266,6 +271,7 @@ module "neutron" {
 
 module "placement" {
   depends_on           = [module.single-mysql, module.many-mysql]
+  count                = var.is-region-controller ? 0 : 1
   source               = "./modules/openstack-api"
   charm                = "placement-k8s"
   name                 = "placement"
@@ -501,6 +507,7 @@ resource "juju_application" "certificate-authority" {
 }
 
 module "ovn" {
+  count                  = var.is-region-controller ? 0 : 1
   source                 = "./modules/ovn"
   model                  = juju_model.sunbeam.name
   channel                = var.ovn-central-channel == null ? var.ovn-channel : var.ovn-central-channel
@@ -520,6 +527,7 @@ module "ovn" {
 # juju integrate ovn-central neutron
 resource "juju_integration" "ovn-central-to-neutron" {
   model = juju_model.sunbeam.name
+  count = var.is-region-controller ? 0 : 1
 
   application {
     name     = module.ovn.name
@@ -535,6 +543,7 @@ resource "juju_integration" "ovn-central-to-neutron" {
 # juju integrate neutron vault
 resource "juju_integration" "neutron-to-ca" {
   model = juju_model.sunbeam.name
+  count = var.is-region-controller ? 0 : 1
 
   application {
     name     = module.neutron.name
@@ -550,6 +559,7 @@ resource "juju_integration" "neutron-to-ca" {
 # juju integrate nova placement
 resource "juju_integration" "nova-to-placement" {
   model = juju_model.sunbeam.name
+  count = var.is-region-controller ? 0 : 1
 
   application {
     name     = module.nova.name
@@ -579,6 +589,7 @@ resource "juju_integration" "glance-to-ceph" {
 
 module "cinder" {
   depends_on           = [module.single-mysql, module.many-mysql]
+  count                = var.is-region-controller ? 0 : 1
   source               = "./modules/openstack-api"
   charm                = "cinder-k8s"
   name                 = "cinder"
