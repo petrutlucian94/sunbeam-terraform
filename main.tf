@@ -200,7 +200,7 @@ resource "juju_integration" "nova-to-ingress-public" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.nova.name
+    name     = module.nova[count.index].name
     endpoint = "traefik-route-public"
   }
 
@@ -215,7 +215,7 @@ resource "juju_integration" "nova-to-ingress-internal" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.nova.name
+    name     = module.nova[count.index].name
     endpoint = "traefik-route-internal"
   }
 
@@ -530,12 +530,12 @@ resource "juju_integration" "ovn-central-to-neutron" {
   count = var.is-region-controller ? 0 : 1
 
   application {
-    name     = module.ovn.name
+    name     = module.ovn[count.index].name
     endpoint = "ovsdb-cms"
   }
 
   application {
-    name     = module.neutron.name
+    name     = module.neutron[count.index].name
     endpoint = "ovsdb-cms"
   }
 }
@@ -546,7 +546,7 @@ resource "juju_integration" "neutron-to-ca" {
   count = var.is-region-controller ? 0 : 1
 
   application {
-    name     = module.neutron.name
+    name     = module.neutron[count.index].name
     endpoint = "certificates"
   }
 
@@ -562,12 +562,12 @@ resource "juju_integration" "nova-to-placement" {
   count = var.is-region-controller ? 0 : 1
 
   application {
-    name     = module.nova.name
+    name     = module.nova[count.index].name
     endpoint = "placement"
   }
 
   application {
-    name     = module.placement.name
+    name     = module.placement[count.index].name
     endpoint = "placement"
   }
 }
@@ -578,7 +578,7 @@ resource "juju_integration" "glance-to-ceph" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.glance.name
+    name     = module.glance[count.index].name
     endpoint = "ceph"
   }
 
@@ -656,7 +656,7 @@ resource "juju_integration" "cinder-to-cinder-volume" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.cinder.name
+    name     = module.cinder[count.index].name
     endpoint = "storage-backend"
   }
 
@@ -1003,7 +1003,7 @@ resource "juju_integration" "ovn-central-to-octavia" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.ovn.name
+    name     = module.ovn[count.index].name
     endpoint = "ovsdb-cms"
   }
 
@@ -1110,7 +1110,7 @@ resource "juju_integration" "designate-to-neutron" {
   }
 
   application {
-    name     = module.neutron.name
+    name     = module.neutron[count.index].name
     endpoint = "external-dns"
   }
 }

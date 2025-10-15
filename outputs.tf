@@ -37,7 +37,7 @@ output "rabbitmq-offer-url" {
 
 output "ovn-relay-offer-url" {
   description = "URL of the ovn relay offer"
-  value       = one(module.ovn.ovn-relay-offer-url[*])
+  value       = one(module.ovn[*].ovn-relay-offer-url)
 }
 
 output "ceilometer-offer-url" {
@@ -52,7 +52,7 @@ output "cert-distributor-offer-url" {
 
 output "nova-offer-url" {
   description = "URL of the nova service offer"
-  value       = one(module.nova.nova-offer-url[*])
+  value       = one(module.nova[*].nova-offer-url)
 }
 
 output "ingress-rgw-offer-url" {
