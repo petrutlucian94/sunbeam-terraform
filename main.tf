@@ -135,7 +135,9 @@ module "glance" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["glance"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.enable-ceph ? var.os-api-scale : 1
@@ -150,6 +152,7 @@ module "glance" {
 }
 
 module "keystone" {
+  count                = var.is-secondary-region ? 0 : 1
   depends_on           = [module.single-mysql, module.many-mysql]
   source               = "./modules/openstack-api"
   charm                = "keystone-k8s"
@@ -184,7 +187,9 @@ module "nova" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["nova"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -227,6 +232,7 @@ resource "juju_integration" "nova-to-ingress-internal" {
 
 module "horizon" {
   depends_on           = [module.single-mysql, module.many-mysql]
+  count                = var.is-secondary-region ? 0 : 1
   source               = "./modules/openstack-api"
   charm                = "horizon-k8s"
   name                 = "horizon"
@@ -235,7 +241,9 @@ module "horizon" {
   revision             = var.horizon-revision
   mysql                = local.mysql["horizon"]
   keystone-credentials = module.keystone.name
+  external-keystone-offer-url = var.external-keystone-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -258,7 +266,9 @@ module "neutron" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["neutron"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -280,7 +290,9 @@ module "placement" {
   revision             = var.placement-revision
   mysql                = local.mysql["placement"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -599,7 +611,9 @@ module "cinder" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["cinder"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -683,8 +697,11 @@ module "heat" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["heat"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-ops         = module.keystone.name
+  external-keystone-ops-offer-url = var.external-keystone-ops-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = ""
   ingress-public       = ""
   scale                = var.os-api-scale
@@ -737,7 +754,9 @@ module "aodh" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["aodh"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -759,7 +778,9 @@ module "gnocchi" {
   revision             = var.gnocchi-revision
   mysql                = local.mysql["gnocchi"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -820,8 +841,9 @@ resource "juju_integration" "ceilometer-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "identity-credentials"
+    name      = module.keystone[*].name
+    offer_url = var.external-keystone-offer-url
+    endpoint  = "identity-credentials"
   }
 
   application {
@@ -835,8 +857,9 @@ resource "juju_integration" "ceilometer-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "send-ca-cert"
+    name      = module.keystone[*].name
+    offer_url = var.external-cert-distributor-offer-url
+    endpoint  = "send-ca-cert"
   }
 
   application {
@@ -903,8 +926,9 @@ resource "juju_integration" "openstack-exporter-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "identity-ops"
+    name      = module.keystone[*].name
+    offer_url = var.external-keystone-ops-offer-url
+    endpoint  = "identity-ops"
   }
 
   application {
@@ -918,8 +942,9 @@ resource "juju_integration" "openstack-exporter-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "send-ca-cert"
+    name      = module.keystone[*].name
+    offer_url = var.external-cert-distributor-offer-url
+    endpoint  = "send-ca-cert"
   }
 
   application {
@@ -984,8 +1009,11 @@ module "octavia" {
   revision             = var.octavia-revision
   mysql                = local.mysql["octavia"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-ops         = module.keystone.name
+  external-keystone-ops-offer-url = var.external-keystone-ops-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1073,7 +1101,9 @@ module "designate" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["designate"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1143,8 +1173,11 @@ module "barbican" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["barbican"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-ops         = module.keystone.name
+  external-keystone-ops-offer-url = var.external-keystone-ops-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1182,8 +1215,11 @@ module "magnum" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["magnum"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-ops         = module.keystone.name
+  external-keystone-ops-offer-url = var.external-keystone-ops-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1207,7 +1243,9 @@ module "manila" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["manila"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1230,6 +1268,7 @@ module "manila-cephfs" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["manila"]
   keystone-credentials = module.keystone.name
+  external-keystone-offer-url = var.external-keystone-offer-url
   ingress-internal     = ""
   ingress-public       = ""
   scale                = var.os-api-scale
@@ -1349,8 +1388,8 @@ resource "juju_integration" "ldap-to-keystone" {
   }
 
   application {
-    name     = module.keystone.name
-    endpoint = "domain-config"
+    name      = module.keystone[*].name
+    endpoint  = "domain-config"
   }
 }
 
@@ -1450,8 +1489,9 @@ resource "juju_integration" "tempest-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "identity-ops"
+    name      = module.keystone[*].name
+    offer_url = var.external-keystone-ops-offer-url
+    endpoint  = "identity-ops"
   }
 
   application {
@@ -1465,8 +1505,9 @@ resource "juju_integration" "tempest-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "send-ca-cert"
+    name      = module.keystone[*].name
+    offer_url = var.external-cert-distributor-offer-url
+    endpoint  = "send-ca-cert"
   }
 
   application {
@@ -1586,8 +1627,9 @@ resource "juju_integration" "images-sync-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "identity-service"
+    name      = module.keystone[*].name
+    offer_url = var.external-keystone-endpoints-offer-url
+    endpoint  = "identity-service"
   }
 
   application {
@@ -1631,8 +1673,9 @@ resource "juju_integration" "images-sync-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
-    endpoint = "send-ca-cert"
+    name      = module.keystone[*].name
+    offer_url = var.external-cert-distributor-offer-url
+    endpoint  = "send-ca-cert"
   }
 
   application {
@@ -1668,7 +1711,9 @@ module "watcher" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["watcher"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1743,7 +1788,9 @@ module "masakari" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["masakari"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1818,7 +1865,9 @@ module "cloudkitty" {
   rabbitmq             = module.rabbitmq.name
   mysql                = local.mysql["cloudkitty"]
   keystone             = module.keystone.name
+  external-keystone-endpoints-offer-url = var.external-keystone-endpoints-offer-url
   keystone-cacerts     = module.keystone.name
+  external-cert-distributor-offer-url = var.external-cert-distributor-offer-url
   ingress-internal     = juju_application.traefik.name
   ingress-public       = juju_application.traefik-public.name
   scale                = var.os-api-scale
@@ -1845,15 +1894,16 @@ resource "juju_integration" "cloudkitty-to-gnocchi" {
 }
 
 resource "juju_integration" "keystone-to-trusted-dashboard-endpoint" {
+  count = var.is-secondary-region ? 0 : 1
   model = juju_model.sunbeam.name
 
   application {
-    name     = module.keystone.name
+    name     = module.keystone[count.index].name
     endpoint = "trusted-dashboard"
   }
 
   application {
-    name     = module.horizon.name
+    name     = module.horizon[count.index].name
     endpoint = "trusted-dashboard"
   }
 }
@@ -1883,7 +1933,7 @@ resource "juju_integration" "sso-openid-to-keystone" {
   }
 
   application {
-    name     = module.keystone.name
+    name     = module.keystone[*].name
     endpoint = "external-idp"
   }
 }
@@ -1913,7 +1963,7 @@ resource "juju_integration" "sso-saml2-to-keystone" {
   }
 
   application {
-    name     = module.keystone.name
+    name     = module.keystone[*].name
     endpoint = "keystone-saml"
   }
 }

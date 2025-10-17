@@ -28,6 +28,11 @@ output "keystone-endpoints-offer-url" {
   value       = juju_offer.keystone-endpoints-offer[*].url
 }
 
+output "keystone-ops-offer-url" {
+  description = "URL of the keystone ops offer"
+  value       = juju_offer.keystone-ops-offer[*].url
+}
+
 output "cert-distributor-offer-url" {
   description = "URL of the cert distributor offer"
   value       = juju_offer.cert-distributor-offer[*].url

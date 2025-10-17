@@ -117,6 +117,21 @@ resource "juju_integration" "keystone-to-service" {
   }
 }
 
+resource "juju_integration" "external-keystone-to-service" {
+  for_each = var.external-keystone-endpoints-offer-url == "" ? {} : { target = var.external-keystone-endpoints-offer-url }
+  model    = var.model
+
+  application {
+    offer_url     = each.value
+    endpoint = "identity-service"
+  }
+
+  application {
+    name     = juju_application.service.name
+    endpoint = "identity-service"
+  }
+}
+
 resource "juju_integration" "service-to-keystone" {
   for_each = var.keystone-credentials == "" ? {} : { target = var.keystone-credentials }
   model    = var.model
@@ -124,6 +139,22 @@ resource "juju_integration" "service-to-keystone" {
   application {
     name     = each.value
     endpoint = "identity-credentials"
+  }
+
+  application {
+    name     = juju_application.service.name
+    endpoint = "identity-credentials"
+  }
+}
+
+// Only used with external Keystone offers (e.g. multi-region setups).
+resource "juju_integration" "external-service-to-keystone" {
+  for_each = var.external-keystone-offer-url == "" ? {} : { target = var.external-keystone-offer-url }
+  model    = var.model
+
+  application {
+    offer_url = var.external-keystone-offer-url
+    endpoint  = "identity-credentials"
   }
 
   application {
@@ -147,6 +178,22 @@ resource "juju_integration" "service-to-keystone-ops" {
   }
 }
 
+resource "juju_integration" "external-service-to-keystone-ops" {
+  for_each = var.external-keystone-ops-offer-url == "" ? {} : { target = var.external-keystone-ops-offer-url }
+  model    = var.model
+
+  application {
+    offer_url = each.value
+    endpoint  = "identity-ops"
+  }
+
+  application {
+    name     = juju_application.service.name
+    endpoint = "identity-ops"
+  }
+}
+
+
 resource "juju_integration" "service-to-keystone-cacerts" {
   for_each = var.keystone-cacerts == "" ? {} : { target = var.keystone-cacerts }
   model    = var.model
@@ -161,6 +208,22 @@ resource "juju_integration" "service-to-keystone-cacerts" {
     endpoint = "receive-ca-cert"
   }
 }
+
+resource "juju_integration" "external-service-to-keystone-cacerts" {
+  for_each = var.external-cert-distributor-offer-url == "" ? {} : { target = var.external-cert-distributor-offer-url }
+  model    = var.model
+
+  application {
+    offer_url = each.value
+    endpoint  = "send-ca-cert"
+  }
+
+  application {
+    name     = juju_application.service.name
+    endpoint = "receive-ca-cert"
+  }
+}
+
 
 # juju integrate traefik-public glance
 resource "juju_integration" "traefik-public-to-service" {
@@ -316,6 +379,14 @@ resource "juju_offer" "keystone-endpoints-offer" {
   application_name = juju_application.service.name
   endpoints        = ["identity-service"]
   name             = "keystone-endpoints"
+}
+
+resource "juju_offer" "keystone-ops-offer" {
+  count            = var.name == "keystone" ? 1 : 0
+  model            = var.model
+  application_name = juju_application.service.name
+  endpoints        = ["identity-ops"]
+  name             = "keystone-ops"
 }
 
 resource "juju_offer" "cert-distributor-offer" {
