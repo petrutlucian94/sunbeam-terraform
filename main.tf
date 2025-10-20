@@ -841,7 +841,7 @@ resource "juju_integration" "ceilometer-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-keystone-offer-url ? null : module.keystone[0].name
     offer_url = var.external-keystone-offer-url
     endpoint  = "identity-credentials"
   }
@@ -857,7 +857,7 @@ resource "juju_integration" "ceilometer-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-cert-distributor-offer-url ? null : module.keystone[0].name
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }
@@ -926,7 +926,7 @@ resource "juju_integration" "openstack-exporter-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-keystone-ops-offer-url ? null : module.keystone[0].name
     offer_url = var.external-keystone-ops-offer-url
     endpoint  = "identity-ops"
   }
@@ -942,7 +942,7 @@ resource "juju_integration" "openstack-exporter-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-cert-distributor-offer-url ? null : module.keystone[0].name
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }
@@ -1489,7 +1489,7 @@ resource "juju_integration" "tempest-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-keystone-ops-offer-url ? null : module.keystone[0].name
     offer_url = var.external-keystone-ops-offer-url
     endpoint  = "identity-ops"
   }
@@ -1505,7 +1505,7 @@ resource "juju_integration" "tempest-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-cert-distributor-offer-url ? null : module.keystone[0].name
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }
@@ -1627,7 +1627,7 @@ resource "juju_integration" "images-sync-to-keystone" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-keystone-endpoints-offer-url ?  null : module.keystone[0].name
     offer_url = var.external-keystone-endpoints-offer-url
     endpoint  = "identity-service"
   }
@@ -1673,7 +1673,7 @@ resource "juju_integration" "images-sync-to-keystone-cacert" {
   model = juju_model.sunbeam.name
 
   application {
-    name      = try(module.keystone[0].name, null)
+    name      = var.external-cert-distributor-offer-url ? null : module.keystone[0].name
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }

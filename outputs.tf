@@ -52,7 +52,7 @@ output "ceilometer-offer-url" {
 
 output "cert-distributor-offer-url" {
   description = "URL of the cert distributor offer"
-  value       = var.external-cert-distributor-offer-url ? external-cert-distributor-offer-url : one(module.keystone.cert-distributor-offer-url[*])
+  value       = var.external-cert-distributor-offer-url ? var.external-cert-distributor-offer-url : one(module.keystone.cert-distributor-offer-url[*])
 }
 
 output "nova-offer-url" {
