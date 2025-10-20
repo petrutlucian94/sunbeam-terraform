@@ -20,5 +20,5 @@ output "name" {
 
 output "ovn-relay-offer-url" {
   description = "URL of the ovn relay offer"
-  value       = juju_offer.ovn-relay-offer[*].url
+  value = length(juju_offer.ovn-relay-offer) > 0 ? juju_offer.ovn-relay-offer[0].url : null
 }

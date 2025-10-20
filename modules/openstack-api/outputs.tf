@@ -40,5 +40,5 @@ output "cert-distributor-offer-url" {
 
 output "nova-offer-url" {
   description = "URL of the nova offer"
-  value       = juju_offer.nova-offer[*].url
+  value = length(juju_offer.nova-offer) > 0 ? juju_offer.nova-offer[0].url : null
 }
