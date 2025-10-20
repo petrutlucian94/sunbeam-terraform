@@ -126,3 +126,29 @@ variable "logging-app" {
   type        = string
   default     = null
 }
+
+variable "external-keystone-offer-url" {
+  # In multi-region setups, the cluster connects to an external Keystone
+  # service, in which case an offer URL must be provided.
+  description = "URL of the external keystone credentials offer"
+  type        = string
+  default     = null
+}
+
+variable "external-keystone-endpoints-offer-url" {
+  description = "URL of the external keystone endpoints offer"
+  type        = string
+  default     = null
+}
+
+variable "external-keystone-ops-offer-url" {
+  description = "URL of the external keystone ops offer"
+  type        = string
+  default     = null
+}
+
+variable "external-cert-distributor-offer-url" {
+  description = "URL of the external cert distributor offer"
+  type        = string
+  default     = null
+}
