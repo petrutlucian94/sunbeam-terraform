@@ -22,17 +22,17 @@ output "ca-offer-url" {
 
 output "keystone-offer-url" {
   description = "URL of the keystone offer"
-  value       = var.external-keystone-offer-url ? var.external-keystone-offer-url : one(module.keystone.keystone-offer-url[*])
+  value       = coalesce(var.external-keystone-offer-url, "") != "" ? var.external-keystone-offer-url : one(module.keystone.keystone-offer-url[*])
 }
 
 output "keystone-endpoints-offer-url" {
   description = "URL of the keystone endpoints offer"
-  value       = var.external-keystone-endpoints-offer-url ? var.external-keystone-endpoints-offer-url : one(module.keystone.keystone-endpoints-offer-url[*])
+  value       = coalesce(var.external-keystone-endpoints-offer-url, "") != "" ? var.external-keystone-endpoints-offer-url : one(module.keystone.keystone-endpoints-offer-url[*])
 }
 
 output "keystone-ops-offer-url" {
   description = "URL of the keystone endpoints offer"
-  value       = var.external-keystone-ops-offer-url ? var.external-keystone-ops-offer-url : one(module.keystone.keystone-ops-offer-url[*])
+  value       = coalesce(var.external-keystone-ops-offer-url, "") != "" ? var.external-keystone-ops-offer-url : one(module.keystone.keystone-ops-offer-url[*])
 }
 
 output "rabbitmq-offer-url" {
@@ -52,7 +52,7 @@ output "ceilometer-offer-url" {
 
 output "cert-distributor-offer-url" {
   description = "URL of the cert distributor offer"
-  value       = var.external-cert-distributor-offer-url ? var.external-cert-distributor-offer-url : one(module.keystone.cert-distributor-offer-url[*])
+  value       = coalesce(var.external-cert-distributor-offer-url, "") != "" ? var.external-cert-distributor-offer-url : one(module.keystone.cert-distributor-offer-url[*])
 }
 
 output "nova-offer-url" {

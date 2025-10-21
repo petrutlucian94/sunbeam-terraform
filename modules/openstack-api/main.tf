@@ -103,7 +103,7 @@ resource "juju_integration" "service-to-rabbitmq" {
 
 # NOTE: this integration is optional
 resource "juju_integration" "keystone-to-service" {
-  for_each = var.keystone == "" ? {} : { target = var.keystone }
+  for_each = !can(coalesce(var.keystone)) ? {} : { target = var.keystone }
   model    = var.model
 
   application {
@@ -118,7 +118,7 @@ resource "juju_integration" "keystone-to-service" {
 }
 
 resource "juju_integration" "external-keystone-to-service" {
-  for_each = var.external-keystone-endpoints-offer-url == "" ? {} : { target = var.external-keystone-endpoints-offer-url }
+  for_each = !can(coalesce(var.external-keystone-endpoints-offer-url)) ? {} : { target = var.external-keystone-endpoints-offer-url }
   model    = var.model
 
   application {
@@ -133,7 +133,7 @@ resource "juju_integration" "external-keystone-to-service" {
 }
 
 resource "juju_integration" "service-to-keystone" {
-  for_each = var.keystone-credentials == "" ? {} : { target = var.keystone-credentials }
+  for_each = !can(coalesce(var.keystone-credentials)) ? {} : { target = var.keystone-credentials }
   model    = var.model
 
   application {
@@ -149,7 +149,7 @@ resource "juju_integration" "service-to-keystone" {
 
 // Only used with external Keystone offers (e.g. multi-region setups).
 resource "juju_integration" "external-service-to-keystone" {
-  for_each = var.external-keystone-offer-url == "" ? {} : { target = var.external-keystone-offer-url }
+  for_each = !can(coalesce(var.external-keystone-offer-url)) ? {} : { target = var.external-keystone-offer-url }
   model    = var.model
 
   application {
@@ -164,7 +164,7 @@ resource "juju_integration" "external-service-to-keystone" {
 }
 
 resource "juju_integration" "service-to-keystone-ops" {
-  for_each = var.keystone-ops == "" ? {} : { target = var.keystone-ops }
+  for_each = !can(coalesce(var.keystone-ops)) ? {} : { target = var.keystone-ops }
   model    = var.model
 
   application {
@@ -179,7 +179,7 @@ resource "juju_integration" "service-to-keystone-ops" {
 }
 
 resource "juju_integration" "external-service-to-keystone-ops" {
-  for_each = var.external-keystone-ops-offer-url == "" ? {} : { target = var.external-keystone-ops-offer-url }
+  for_each = !can(coalesce(var.external-keystone-ops-offer-url)) ? {} : { target = var.external-keystone-ops-offer-url }
   model    = var.model
 
   application {
@@ -195,7 +195,7 @@ resource "juju_integration" "external-service-to-keystone-ops" {
 
 
 resource "juju_integration" "service-to-keystone-cacerts" {
-  for_each = var.keystone-cacerts == "" ? {} : { target = var.keystone-cacerts }
+  for_each = !can(coalesce(var.keystone-cacerts)) ? {} : { target = var.keystone-cacerts }
   model    = var.model
 
   application {
@@ -210,7 +210,7 @@ resource "juju_integration" "service-to-keystone-cacerts" {
 }
 
 resource "juju_integration" "external-service-to-keystone-cacerts" {
-  for_each = var.external-cert-distributor-offer-url == "" ? {} : { target = var.external-cert-distributor-offer-url }
+  for_each = !can(coalesce(var.external-cert-distributor-offer-url)) ? {} : { target = var.external-cert-distributor-offer-url }
   model    = var.model
 
   application {
