@@ -837,11 +837,25 @@ resource "juju_integration" "ceilometer-to-rabbitmq" {
 }
 
 resource "juju_integration" "ceilometer-to-keystone" {
-  count = var.enable-telemetry ? 1 : 0
+  count = var.enable-telemetry && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-keystone-offer-url != null ? null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "identity-credentials"
+  }
+
+  application {
+    name     = juju_application.ceilometer[count.index].name
+    endpoint = "identity-credentials"
+  }
+}
+
+resource "juju_integration" "ceilometer-to-keystone-external" {
+  count = var.enable-telemetry && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-keystone-offer-url
     endpoint  = "identity-credentials"
   }
@@ -853,11 +867,25 @@ resource "juju_integration" "ceilometer-to-keystone" {
 }
 
 resource "juju_integration" "ceilometer-to-keystone-cacert" {
-  count = var.enable-telemetry ? 1 : 0
+  count = var.enable-telemetry && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-cert-distributor-offer-url != null ? null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "send-ca-cert"
+  }
+
+  application {
+    name     = juju_application.ceilometer[count.index].name
+    endpoint = "receive-ca-cert"
+  }
+}
+
+resource "juju_integration" "ceilometer-to-keystone-cacert-external" {
+  count = var.enable-telemetry && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }
@@ -867,6 +895,7 @@ resource "juju_integration" "ceilometer-to-keystone-cacert" {
     endpoint = "receive-ca-cert"
   }
 }
+
 
 resource "juju_integration" "ceilometer-to-gnocchi" {
   count = var.enable-telemetry ? 1 : 0
@@ -922,11 +951,25 @@ resource "juju_application" "openstack-exporter" {
 }
 
 resource "juju_integration" "openstack-exporter-to-keystone" {
-  count = var.enable-telemetry ? 1 : 0
+  count = var.enable-telemetry && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-keystone-ops-offer-url != null ? null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "identity-ops"
+  }
+
+  application {
+    name     = juju_application.openstack-exporter[count.index].name
+    endpoint = "identity-ops"
+  }
+}
+
+resource "juju_integration" "openstack-exporter-to-keystone-external" {
+  count = var.enable-telemetry && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-keystone-ops-offer-url
     endpoint  = "identity-ops"
   }
@@ -938,11 +981,25 @@ resource "juju_integration" "openstack-exporter-to-keystone" {
 }
 
 resource "juju_integration" "openstack-exporter-to-keystone-cacert" {
-  count = var.enable-telemetry ? 1 : 0
+  count = var.enable-telemetry && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-cert-distributor-offer-url != null ? null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "send-ca-cert"
+  }
+
+  application {
+    name     = juju_application.openstack-exporter[count.index].name
+    endpoint = "receive-ca-cert"
+  }
+}
+
+resource "juju_integration" "openstack-exporter-to-keystone-cacert-external" {
+  count = var.enable-telemetry && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }
@@ -1485,11 +1542,25 @@ resource "juju_application" "tempest" {
 }
 
 resource "juju_integration" "tempest-to-keystone" {
-  count = var.enable-validation ? 1 : 0
+  count = var.enable-validation && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-keystone-ops-offer-url != null ? null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "identity-ops"
+  }
+
+  application {
+    name     = juju_application.tempest[count.index].name
+    endpoint = "identity-ops"
+  }
+}
+
+resource "juju_integration" "tempest-to-keystone-external" {
+  count = var.enable-validation && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-keystone-ops-offer-url
     endpoint  = "identity-ops"
   }
@@ -1501,11 +1572,26 @@ resource "juju_integration" "tempest-to-keystone" {
 }
 
 resource "juju_integration" "tempest-to-keystone-cacert" {
-  count = var.enable-validation ? 1 : 0
+  count = var.enable-validation && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-cert-distributor-offer-url != null ? null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "send-ca-cert"
+  }
+
+  application {
+    name     = juju_application.tempest[count.index].name
+    endpoint = "receive-ca-cert"
+  }
+}
+
+
+resource "juju_integration" "tempest-to-keystone-cacert-external" {
+  count = var.enable-validation && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }
@@ -1623,11 +1709,25 @@ resource "juju_application" "images-sync" {
 }
 
 resource "juju_integration" "images-sync-to-keystone" {
-  count = var.enable-images-sync ? 1 : 0
+  count = var.enable-images-sync && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-keystone-endpoints-offer-url ?  null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "identity-service"
+  }
+
+  application {
+    name     = juju_application.images-sync[count.index].name
+    endpoint = "identity-service"
+  }
+}
+
+resource "juju_integration" "images-sync-to-keystone-external" {
+  count = var.enable-images-sync && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-keystone-endpoints-offer-url
     endpoint  = "identity-service"
   }
@@ -1669,11 +1769,25 @@ resource "juju_integration" "images-sync-to-traefik-public" {
 }
 
 resource "juju_integration" "images-sync-to-keystone-cacert" {
-  count = var.enable-images-sync ? 1 : 0
+  count = var.enable-images-sync && !var.is-secondary-region ? 1 : 0
   model = juju_model.sunbeam.name
 
   application {
-    name      = var.external-cert-distributor-offer-url != null ? null : module.keystone[0].name
+    name      = one(module.keystone[*].name)
+    endpoint  = "send-ca-cert"
+  }
+
+  application {
+    name     = juju_application.images-sync[count.index].name
+    endpoint = "receive-ca-cert"
+  }
+}
+
+resource "juju_integration" "images-sync-to-keystone-cacert-external" {
+  count = var.enable-images-sync && var.is-secondary-region ? 1 : 0
+  model = juju_model.sunbeam.name
+
+  application {
     offer_url = var.external-cert-distributor-offer-url
     endpoint  = "send-ca-cert"
   }
