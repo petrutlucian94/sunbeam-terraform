@@ -66,7 +66,9 @@ locals {
   # The name of the Traefik application, used for Juju integration.
   # This applies to API services that are expected to run on region controllers,
   # such as Keystone and Horizon.
-  controller-internal-traefik-name = var.is-secondary-region ? "" : "traefik"
+  # Internal endpoits are not available outside the k8s cluster, for which reason
+  # region controllers will always use public endpoints.
+  controller-internal-traefik-name = var.is-secondary-region ? "" : (var.is-region-controller ? "traefik-public" : "traefik")
   controller-public-traefik-name   = var.is-secondary-region ? "" : "traefik-public"
 }
 
